@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Ultimate Dice Duel</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Orbitron', sans-serif;
+      background: linear-gradient(to right, #232526, #414345);
+      color: #fff;
+      text-align: center;
+      padding: 30px;
+      margin: 0;
+    }
+
+    h1 {
+      font-size: 2.5em;
+      margin-bottom: 20px;
+    }
+
+    input {
+      padding: 10px;
+      margin: 5px;
+      font-size: 1em;
+      border-radius: 6px;
+      border: none;
+      text-align: center;
+    }
+
+    button {
+      padding: 10px 20px;
+      font-size: 1em;
+      border: none;
+      border-radius: 10px;
+      background-color: #00c6ff;
+      color: white;
+      cursor: pointer;
+      margin-top: 10px;
+      box-shadow: 0 4px 10px rgba(0, 198, 255, 0.5);
+    }
+
+    button:hover {
+      background-color: #009ec3;
+    }
+
+    .game {
+      display: none;
+      margin-top: 30px;
+    }
+
+    .players {
+      display: flex;
+      justify-content: center;
+      gap: 60px;
+      margin-bottom: 20px;
+    }
+
+    .player {
+      text-align: center;
+    }
+
+    .dice {
+      font-size: 100px;
+      margin: 10px;
+      transition: transform 0.3s ease-in-out;
+    }
+
+    .dice.animate {
+      transform: rotate(360deg) scale(1.1);
+    }
+
+    .score {
+      font-size: 1.2em;
+      color: #00e6ff;
+    }
+
+    #winner {
+      font-size: 1.6em;
+      color: #ffdd57;
+      margin: 15px 0;
+    }
+
+    #history {
+      margin-top: 20px;
+      font-size: 1em;
+      background: #1c1c1c;
+      padding: 15px;
+      border-radius: 10px;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+      text-align: left;
+    }
+
+    #history p {
+      margin: 5px 0;
+      border-bottom: 1px solid #444;
+      padding-bottom: 4px;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🎲 Ultimate Dice Duel</h1>
+
+  <div id="setup">
+    <input id="player1Name" type="text" placeholder="Player 1 Name" />
+    <input id="player2Name" type="text" placeholder="Player 2 Name" />
+    <input id="targetScore" type="number" placeholder="Target Score" min="1" />
+    <br>
+    <button onclick="startGame()">Start Game</button>
+  </div>
+
+  <div class="game" id="gameArea">
+    <div class="players">
+      <div class="player">
+        <h2 id="name1">Player 1</h2>
+        <div id="dice1" class="dice">🎲</div>
+        <div class="score">Wins: <span id="score1">0</span></div>
+      </div>
+      <div class="player">
+        <h2 id="name2">Player 2</h2>
+        <div id="dice2" class="dice">🎲</div>
+        <div class="score">Wins: <span id="score2">0</span></div>
+      </div>
+    </div>
+
+    <p id="drawCount">Draws: 0</p>
+    <p id="winner"></p>
+    <button onclick="rollDice()">🎲 Roll Dice</button>
+    <button onclick="resetGame()">🔁 Restart</button>
+    <div id="history"><strong>Game History:</strong></div>
+  </div>
+
+  <audio id="rollSound" src="https://www.myinstants.com/media/sounds/dice-roll.mp3"></audio>
+  <audio id="winSound" src="https://www.myinstants.com/media/sounds/win.mp3"></audio>
+
+  <script>
+    const diceFaces = ["⚀", "⚁", "⚂", "⚃", "⚄", "⚅"];
+    let score1 = 0, score2 = 0, draws = 0, target = 5;
+    let name1 = "Player 1", name2 = "Player 2";
+    let gameActive = false;
+
+    function startGame() {
+      name1 = document.getElementById("player1Name").value || "Player 1";
+      name2 = document.getElementById("player2Name").value || "Player 2";
+      target = parseInt(document.getElementById("targetScore").value) || 5;
+
+      document.getElementById("name1").innerText = name1;
+      document.getElementById("name2").innerText = name2;
+      document.getElementById("score1").innerText = "0";
+      document.getElementById("score2").innerText = "0";
+      document.getElementById("drawCount").innerText = `Draws: 0`;
+      document.getElementById("winner").innerText = "";
+      document.getElementById("history").innerHTML = "<strong>Game History:</strong>";
+
+      document.getElementById("gameArea").style.display = "block";
+      gameActive = true;
+      score1 = score2 = draws = 0;
+    }
+
+    function rollDice() {
+      if (!gameActive) return;
+
+      const sound = document.getElementById("rollSound");
+      sound.play();
+
+      const dice1 = Math.floor(Math.random() * 6) + 1;
+      const dice2 = Math.floor(Math.random() * 6) + 1;
+
+      const dice1El = document.getElementById("dice1");
+      const dice2El = document.getElementById("dice2");
+
+      dice1El.classList.add("animate");
+      dice2El.classList.add("animate");
+
+      setTimeout(() => {
+        dice1El.classList.remove("animate");
+        dice2El.classList.remove("animate");
+      }, 300);
+
+      dice1El.innerText = diceFaces[dice1 - 1];
+      dice2El.innerText = diceFaces[dice2 - 1];
+
+      let message = "";
+      if (dice1 > dice2) {
+        score1++;
+        message = `🏆 ${name1} wins this round!`;
+      } else if (dice2 > dice1) {
+        score2++;
+        message = `🏆 ${name2} wins this round!`;
+      } else {
+        draws++;
+        message = `🤝 It's a draw!`;
+      }
+
+      document.getElementById("score1").innerText = score1;
+      document.getElementById("score2").innerText = score2;
+      document.getElementById("drawCount").innerText = `Draws: ${draws}`;
+      document.getElementById("winner").innerText = message;
+
+      document.getElementById("history").innerHTML += `<p>${name1}: ${dice1} | ${name2}: ${dice2} → ${message}</p>`;
+
+      if (score1 >= target || score2 >= target) {
+        document.getElementById("winner").innerText = `🎉 ${
+          score1 >= target ? name1 : name2
+        } wins the game!`;
+        document.getElementById("winSound").play();
+        gameActive = false;
+      }
+    }
+
+    function resetGame() {
+      score1 = score2 = draws = 0;
+      gameActive = true;
+      document.getElementById("score1").innerText = "0";
+      document.getElementById("score2").innerText = "0";
+      document.getElementById("drawCount").innerText = "Draws: 0";
+      document.getElementById("winner").innerText = "";
+      document.getElementById("history").innerHTML = "<strong>Game History:</strong>";
+    }
+  </script>
+
+</body>
+</html>
