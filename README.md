@@ -4,6 +4,7 @@
 A fun, interactive, and feature-rich two-player dice game built with HTML, CSS, and JavaScript!
 
 
+![screenshot](screenshot.png)
 
 ## 🚀 Overview
 
